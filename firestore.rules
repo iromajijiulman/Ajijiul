@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Phase 3: Primitive Definitions
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Phase 4: Entity Validation Blueprints
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'handle', 'email']) &&
+             data.keys().size() <= 12 &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.handle is string && data.handle.size() <= 64 &&
+             data.email is string && data.email.size() <= 255;
+    }
+
+    function isValidPost(data) {
+      return data.keys().hasAll(['authorId', 'content', 'timestamp']) &&
+             data.keys().size() <= 10 &&
+             data.authorId is string && data.authorId == request.auth.uid &&
+             data.content is string && data.content.size() <= 4000 &&
+             data.timestamp == request.time;
+    }
+
+    // 1. Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn() && resource.data.id == request.auth.uid;
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUser(incoming()) &&
+                    incoming().id == existing().id &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['name', 'handle', 'avatar', 'followers', 'following', 'posts']);
+    }
+
+    // 2. Posts Collection
+    match /posts/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(postId) && isValidPost(incoming());
+      allow update: if isSignedIn() && isOwner(existing().authorId) && 
+                    isValidPost(incoming()) &&
+                    incoming().authorId == existing().authorId &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['content', 'image', 'likes', 'comments', 'shares']);
+      allow delete: if isSignedIn() && isOwner(existing().authorId);
+    }
+
+    // 3. Events Collection (Read-only for users)
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+    }
+
+    // 4. Products Collection (Read-only for users)
+    match /products/{productId} {
+      allow read: if isSignedIn();
+    }
+  }
+}

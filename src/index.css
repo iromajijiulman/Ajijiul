@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-primary: #6366f1; /* Indigo-500 */
+  --color-brand-secondary: #a855f7; /* Purple-500 */
+  --color-bg-surface: #09090b; /* Zinc-950 */
+  --color-bg-card: #18181b; /* Zinc-900 */
+  --color-border-card: #27272a; /* Zinc-800 */
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-surface text-zinc-100 font-sans antialiased;
+  }
+}
+
+.shadow-soft {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.bento-card {
+  @apply bg-zinc-900 border border-zinc-800 rounded-3xl transition-all duration-300;
+}
+
+.bento-card-hover {
+  @apply hover:border-zinc-700 hover:bg-zinc-800/80;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

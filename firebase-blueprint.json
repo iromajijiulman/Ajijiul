@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "handle": { "type": "string" },
+        "avatar": { "type": "string" },
+        "followers": { "type": "number" },
+        "following": { "type": "number" },
+        "posts": { "type": "number" },
+        "email": { "type": "string", "format": "email" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "handle", "email"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "A social media post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "authorId": { "type": "string" },
+        "content": { "type": "string" },
+        "image": { "type": "string" },
+        "likes": { "type": "number" },
+        "comments": { "type": "number" },
+        "shares": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "content", "timestamp"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "An upcoming event",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "location": { "type": "string" },
+        "date": { "type": "string" },
+        "day": { "type": "string" },
+        "month": { "type": "string" },
+        "image": { "type": "string" },
+        "participants": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["title", "location", "date", "month"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "A product in the marketplace",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "string" },
+        "image": { "type": "string" },
+        "ratingValue": { "type": "number" },
+        "ratingCount": { "type": "number" },
+        "condition": { "type": "string", "enum": ["New", "Second Hand"] }
+      },
+      "required": ["name", "price", "image"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Public and private user profile data"
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Social media posts"
+    },
+    "/events/{eventId}": {
+      "schema": "Event",
+      "description": "Upcoming events"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Marketplace items"
+    }
+  }
+}
